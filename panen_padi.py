@@ -383,7 +383,7 @@ def main():
                         mape_train = float(model_data.get("mape_train",0))
                         mape_test = float(model_data.get("mape_test",0))
 
-                        if model_rf_pso is not None and isinstance(params, dict) and isinstance(mape_train, (float, int)) and isinstance(mape_test, (float, int)):
+                        if model_rf_pso is not None and isinstance(params, dict):
                             st.subheader("📌 Parameter PSO")
                             st.markdown(f"**Partikel : 100**")
                             st.markdown(f"**Iterasi: 50**")
