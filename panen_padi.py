@@ -1,3 +1,4 @@
+import gdown
 import streamlit as st # type: ignore
 import pandas as pd
 import numpy as np
@@ -9,12 +10,8 @@ from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
 import time
 import joblib
 import os
-# Fungsi untuk memuat objek dari file pickle
-def load_pickle(file_path):
-    with open(file_path, 'rb') as file:
-        obj = pickle.load(file)
-    return obj
-
+import altair as alt
+import tempfile
 
 
 # STREAMLIT
@@ -25,7 +22,7 @@ def main():
     
        
     # Sidebar Menu
-    st.sidebar.image("image/panen.png", width=200) 
+    st.sidebar.image("panen.png", width=200) 
    # Menambahkan judul besar di sidebar
     st.sidebar.markdown("<h2 style='font-size: 24px;'> select menu</h2>", unsafe_allow_html=True)
 
@@ -105,7 +102,30 @@ def main():
             st.warning("Harap upload data terlebih dahulu di menu 'Load Data'.")
         else:
             df = st.session_state["data"].copy()
+            
+            numeric_cols = df.select_dtypes(include=['int64', 'float64']).columns.tolist()
+            # === Ringkasan Awal (Sebelum Imputasi) ===
+            st.markdown("###### 📊 Ringkasan Data Sebelum Preprocessing")
+            null_count = df.isnull().sum()
+            zero_count = (df[numeric_cols] == 0).sum()
 
+            summary_before = pd.DataFrame({
+                "Data Kosong": null_count,
+                "Data bernilai 0": zero_count}).fillna(0).astype(int)
+            st.dataframe(summary_before)
+
+            # === Ringkasan Setelah Penanganan Outlier ===
+            st.markdown("###### 📊 Ringkasan Data Setelah Penanganan Outlier (dengan imputasi Mean)")
+            null_after = df_outlier_handled.isnull().sum()
+            zero_after = (df_outlier_handled[numeric_cols] == 0).sum()
+
+            summary_after = pd.DataFrame({
+                "Data Kosong": null_after,
+                "Data bernilai 0": zero_after
+            }).fillna(0).astype(int)
+
+            st.dataframe(summary_after)
+            
             # ===== One-Hot Encoding untuk 'varietas' =====
             st.subheader("One-Hot Encoding untuk Kolom varietas")
             try:
@@ -176,16 +196,26 @@ def main():
         else:
             # Mapping rasio -> test_size dan file model
             rasio_opsi = {
-                "50:50": {"test_size": 0.5, "model_data": "model/rf5.pkl"},
-                "60:40": {"test_size": 0.4, "model_data": "model/rf4.pkl"},
-                "70:30": {"test_size": 0.3, "model_data": "model/rf3.pkl"},
-                "80:20": {"test_size": 0.2, "model_data": "model/rf2.pkl"},
-                "90:10": {"test_size": 0.1, "model_data": "model/rf1.pkl"},
+                "50:50": {"test_size": 0.5, "drive_id": "1rHVRZ9rR8UbMgG4ur4Uq69lh7b__i0vH"},
+                "60:40": {"test_size": 0.4, "drive_id": "1QkdiFoijSEOj8tE5Rc5-hTUb8s8RM64_"},
+                "70:30": {"test_size": 0.3, "drive_id": "1ze6iQyYKBLOX1kkOgD6mvjFy8o-jS8Om"},
+                "80:20": {"test_size": 0.2, "drive_id": "1EAbMoYPaDzTfT4PL4IcBt_L1cRwYhhjr"},
+                "90:10": {"test_size": 0.1, "drive_id": "1U_Gi0FFSGMrPQpRGIzEmA1ZoIjVi2OvX"},
             }
 
             # Pilihan rasio dari dropdown
             selected_rasio_label = st.selectbox("Pilih rasio data latih dan uji:", list(rasio_opsi.keys()))
             selected_rasio = rasio_opsi[selected_rasio_label]
+            test_size = selected_rasio["test_size"]
+            drive_id = selected_rasio["drive_id"]
+
+            # Split data hanya untuk info, bukan buat latih ulang
+            X = st.session_state["X"]
+            y = st.session_state["y"]
+
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=test_size, random_state=42
+            )
 
             # Hitung jumlah data
             total_data = len(st.session_state["X"])
@@ -195,45 +225,106 @@ def main():
             st.info(f"Jumlah data latih: {train_count}")
             st.info(f"Jumlah data uji: {test_count}")
 
-            # Split data hanya untuk info, bukan buat latih ulang
-            X = st.session_state["X"]
-            y = st.session_state["y"]
+             # Unduh file model jika belum ada
+            model_dir = "model"
+            os.makedirs(model_dir, exist_ok=True)
+            model_path = f"{model_dir}/model_rf_{selected_rasio_label.replace(':', '')}.pkl"
+            
+            tab1, tab2 = st.tabs(["📂 Hasil Load Model", "🛠️ Input Manual RF"])
+            with tab1:
+                if not os.path.exists(model_path) or os.path.getsize(model_path) == 0:
+                    if os.path.exists(model_path):
+                        os.remove(model_path)
+                    with st.spinner("🔽 Mengunduh model dari Google Drive..."):
+                        try:
+                            url = f"https://drive.google.com/uc?id={drive_id}"
+                            gdown.download(url, model_path, quiet=False, fuzzy=True)
+                        except Exception as e:
+                            st.error(f"Gagal mengunduh model: {e}")
 
-            X_train, X_test, y_train, y_test = train_test_split(
-                X, y, test_size=selected_rasio["test_size"], random_state=42
-            )
+                if os.path.exists(model_path):
+                    try:
+                        with open(model_path, "rb") as f:
+                            model_data = pickle.load(f)
+                        model_rf = model_data.get("model")
+                        params = model_data.get("params", {})
+                        mape_train = model_data.get("mape_train")
+                        mape_test = model_data.get("mape_test")
 
-            model_path = selected_rasio["model_data"]  # path file model
+                        if model_rf and mape_train is not None and mape_test is not None:
+                            # Tampilkan parameter model dalam input field yang tidak bisa diubah (read-only)
+                            st.subheader("📌 Parameter Model Random Forest")
+                            st.markdown(f"**Jumlah pohon (n_estimators):** {params.get('n_estimators', 0)}")
+                            st.markdown(f"**Kedalaman maksimum pohon (max_depth):** {params.get('max_depth', 0)}")
+                            st.markdown(f"**Fitur maksimum (max_features):** {params.get('max_features', 0)}")
+                            # st.success("Model berhasil dimuat!")
+                            st.write(f"📊 MAPE Training: **{mape_train:.2f}%**")
+                            st.write(f"📊 MAPE Testing : **{mape_test:.2f}%**")
+                            # Tambahan: jika MAPE < 10%, sarankan untuk optimasi
+                            # if mape_test > 10:
+                            #     st.warning("📈 MAPE Testing > 10%. Lakukan optimasi menggunakan PSO.")
+                        else:
+                            st.error("Beberapa parameter model tidak ditemukan dalam fileee.")
+                    except Exception as e:
+                        st.error(f"Terjadi kesalahan saat memuat model: {e}")
+                else:
+                    st.error("File model tidak ditemukan.")
+            with tab2:
+                st.subheader("🔧 Latih Ulang Random Forest (Manual)")
+                n_estimators = st.number_input("Jumlah pohon (n_estimators)", min_value=1, max_value=1000, value=1)
+                max_depth = st.number_input("Kedalaman maksimum pohon (max_depth)", min_value=1, max_value=20, value=1)
+                max_features = st.slider("Fitur maksimum (max_features)", min_value=0.4, max_value=1.0, value=0.4, step=0.1)
 
-            if os.path.exists(model_path):
-                try:
-                    with open(model_path, "rb") as f:
-                        model_data = pickle.load(f)
+                if st.button("Latih Model"):
+                    try:
+                        # X = st.session_state["X"]
+                        # y = st.session_state["y"]
+                        scaler_y = st.session_state["scaler_y"]
 
-                    model_rf = model_data.get("model")
-                    params = model_data.get("params", {})
-                    mape_train = params.get("mape_train")
-                    mape_test = params.get("mape_test")
+                        # Split ulang dengan rasio yang dipilih
+                        X_train, X_test, y_train, y_test = train_test_split(
+                            X, y, test_size=test_size, random_state=42
+                        )
 
-                    if model_rf and params and mape_train is not None and mape_test is not None:
-                        # Tampilkan parameter model dalam input field yang tidak bisa diubah (read-only)
-                        st.subheader("📌 Parameter Model Random Forest")
+                        rf = RandomForestRegressor(
+                            n_estimators=n_estimators,
+                            max_depth=max_depth,
+                            max_features=max_features,
+                            random_state=42
+                        )
+                        rf.fit(X_train, y_train)
 
-                        st.number_input("Jumlah pohon (n_estimators)", value=params.get("n_estimators", 0), disabled=True)
-                        st.number_input("Kedalaman maksimum pohon (max_depth)", value=params.get("max_depth", 0), disabled=True)
-                        st.number_input("Fitur maksimum (max_features)", value=params.get("max_features", 0), disabled=True)
-                        # st.success("Model berhasil dimuat!")
+                        # Prediksi (normalisasi)
+                        y_pred_train = rf.predict(X_train).reshape(-1, 1)
+                        y_pred_test = rf.predict(X_test).reshape(-1, 1)
+
+                        # Denormalisasi target & prediksi
+                        y_train_denorm = scaler_y.inverse_transform(y_train.to_numpy().reshape(-1, 1))
+                        y_test_denorm = scaler_y.inverse_transform(y_test.to_numpy().reshape(-1, 1))
+                        y_pred_train_denorm = scaler_y.inverse_transform(y_pred_train)
+                        y_pred_test_denorm = scaler_y.inverse_transform(y_pred_test)
+
+
+                        # Hitung MAPE
+                        mape_train = mean_absolute_percentage_error(y_train_denorm, y_pred_train_denorm) * 100
+                        mape_test = mean_absolute_percentage_error(y_test_denorm, y_pred_test_denorm) * 100
+
+                        st.success("✅ Model berhasil dilatih ulang.")
                         st.write(f"📊 MAPE Training: **{mape_train:.2f}%**")
                         st.write(f"📊 MAPE Testing : **{mape_test:.2f}%**")
-                        # Tambahan: jika MAPE < 10%, sarankan untuk optimasi
-                        if mape_test > 10:
-                            st.warning("📈 MAPE Testing > 10%. Lakukan optimasi menggunakan PSO.")
-                    else:
-                        st.error("Beberapa parameter model tidak ditemukan dalam file.")
-                except Exception as e:
-                    st.error(f"Terjadi kesalahan saat memuat model: {e}")
-            else:
-                st.error("File model tidak ditemukan.")
+
+                        # Evaluasi kualitas MAPE
+                        # if mape_test < 10:
+                        #     st.success("🟢 Kategori MAPE: **Sangat Baik**")
+                        # elif 10 <= mape_test <= 20:
+                        #     st.info("🔵 Kategori MAPE: **Baik**")
+                        # elif 20 < mape_test <= 50:
+                        #     st.warning("🟠 Kategori MAPE: **Cukup**")
+                        # else:
+                        #     st.error("🔴 Kategori MAPE: **Buruk**")
+
+                    except Exception as e:
+                        st.error(f"Terjadi kesalahan saat pelatihan: {e}")
 
     elif menu == "Random Forest + PSO Modelling":
         st.header("Random Forest + PSO Modelling")
@@ -248,16 +339,16 @@ def main():
 
             # Mapping rasio ke file model hasil optimasi
             rasio_opsi_pso = {
-                "50:50": "model/rfpso_1.pkl",
-                "60:40": "model/rfpso_2.pkl",
-                "70:30": "model/rfpso_3.pkl",
-                "80:20": "model/rfpso_4.pkl",
-                "90:10": "model/rfpso_5.pkl",
+                "50:50": "1Kax1ZcS0toPrQQR7KLZwCjZFBZ2MwezM",
+                "60:40": "1D9vyfEQ2Bi8wST39GkgmjNMOqeweRcQb",
+                "70:30": "1QJgDuqKUbizKyNLVCxtiaVvfjQeJSy_g",
+                "80:20": "1x-CBDynz1IGXFKlAtlGUlt7WYx21XVbi",
+                "90:10": "1lnY0GytPzY66S2JAMTdHWztTqiwcTCkm",
             }
 
             # Dropdown untuk pilih rasio
             selected_rasio_label = st.selectbox("Pilih rasio data latih dan uji:", list(rasio_opsi_pso.keys()))
-            model_path_pso = rasio_opsi_pso[selected_rasio_label]
+            file_ref = rasio_opsi_pso[selected_rasio_label]
 
             # Hitung dan tampilkan jumlah data train-test
             total_data = len(st.session_state["X"])
@@ -274,44 +365,205 @@ def main():
             st.info(f"Jumlah data latih: {train_count}")
             st.info(f"Jumlah data uji: {test_count}")
 
-            # Cek dan load file model PSO
-            if os.path.exists(model_path_pso):
-                try:
-                    with open(model_path_pso, "rb") as f:
-                        model_data = pickle.load(f)
+            model_dir = "model"
+            os.makedirs(model_dir, exist_ok=True)
+            model_path_pso = f"rfpso_{selected_rasio_label.replace(':', '').replace('/', '')}.pkl"
 
-                    model_rf_pso = model_data.get("model")
-                    params = model_data.get("params", {})
-                    mape_train = params.get("mape_train")
-                    mape_test = params.get("mape_test")
+            
+            tab1_pso, tab2_pso = st.tabs(["📂 Hasil Optimasi PSO", "📌 Parameter Model PSO"])
+            with tab1_pso:
+                
+                # Jika file belum ada, unduh dari Google Drive
+                if not os.path.exists(model_path_pso) or os.path.getsize(model_path_pso) == 0:
+                    with st.spinner("🔽 Mengunduh model hasil PSO dari Google Drive..."):
+                        try:
+                            url = f"https://drive.google.com/uc?id={file_ref}"
+                            gdown.download(url, model_path_pso, quiet=False, fuzzy=True)
+                        except Exception as e:
+                            st.error(f"Gagal mengunduh model dari Google Drive: {e}")
+                              
+                # Cek dan load file model PSO
+                if os.path.exists(model_path_pso):
+                    try:
+                        with open(model_path_pso, "rb") as f:
+                            model_data = pickle.load(f)
+                            
 
-                    if model_rf_pso and mape_train is not None and mape_test is not None:
-                        st.subheader("📌 Parameter Hasil Optimasi (PSO)")
+                        params = model_data.get("params", {})
+                        model_rf_pso = model_data.get("model")  # tetap string, cukup untuk ditampilkan
+                        mape_train = model_data.get("mape_train")
+                        mape_test = model_data.get("mape_test")
 
-                        # Tampilkan parameter hasil PSO (readonly)
-                        st.number_input("Jumlah pohon (n_estimators)", value=params.get("n_estimators", 0), disabled=True)
-                        st.number_input("Kedalaman maksimum pohon (max_depth)", value=params.get("max_depth", 0), disabled=True)
-                        st.number_input("Max features", value=params.get("max_features", 1), disabled=True)
+                        if model_rf_pso is not None and isinstance(params, dict) and isinstance(mape_train, (float, int)) and isinstance(mape_test, (float, int)):
+                            st.subheader("📌 Parameter PSO")
+                            st.markdown(f"**Partikel : 100**")
+                            st.markdown(f"**Iterasi: 50**")
+                            st.markdown(f"**C1: 1.49618**")
+                            st.markdown(f"**C2: 1.49618**")
+                            st.markdown(f"**Inertia: 0.7**")
 
+                            st.subheader("📌 Parameter Hasil Optimasi (PSO)")             
+                            st.markdown(f"**Jumlah pohon (n_estimators):** {params.get('n_estimators', 0)}")
+                            st.markdown(f"**Kedalaman maksimum pohon (max_depth):** {params.get('max_depth', 0)}")
+                            st.markdown(f"**Fitur maksimum (max_features):** {params.get('max_features', 0)}")
+
+                            st.write(f"📊 MAPE Training: **{mape_train:.2f}%**")
+                            st.write(f"📊 MAPE Testing : **{mape_test:.2f}%**")
+
+                            # Evaluasi kategori berdasarkan nilai MAPE Testing
+                            if mape_test < 10:
+                                st.success("🎯 Nilai MAPE Testing dalam kategori **SANGAT BAIK**")
+                            elif 10 <= mape_test < 20:
+                                st.success("✅ Nilai MAPE Testing dalam kategori **BAIK** ")
+                            elif 20 <= mape_test <= 50:
+                                st.warning("⚠️ Nilai MAPE Testing dalam kategori **CUKUP BAIK**")
+                            else:
+                                st.error("❌ Nilai MAPE Testing dalam kategori **BURUK** ")
+
+                        else:
+                            st.error("Parameter model atau nilai MAPE tidak ditemukaNn.")
+                    except Exception as e:
+                        st.error(f"Terjadi kesalahan saat memuat model: {e}")
+                else:
+                    st.error("File model hasil optimasi PSO tidak ditemukan.")
+            with tab2_pso:
+                def run_pso_rf_optimization(X_train, X_test, y_train, y_test, scaler_y, bounds, n_particles, n_iterations, c1, c2, inertia):
+
+                    # --- Inisialisasi Partikel ---
+                    def initialize_particles():
+                        particles = []
+                        velocities = []
+                        for _ in range(n_particles):
+                            n_estimators = np.random.randint(bounds["n_estimators"][0], bounds["n_estimators"][1] + 1)
+                            max_depth = np.random.randint(bounds["max_depth"][0], bounds["max_depth"][1] + 1)
+                            max_features = np.random.uniform(bounds["max_features"][0], bounds["max_features"][1])
+                            particles.append([n_estimators, max_depth, max_features])
+                            velocities.append(np.zeros(3))
+                        return np.array(particles), np.array(velocities)
+
+                    # --- Fungsi Evaluasi: kembalikan MAPE Test ---
+                    def evaluate(particle):
+                        n_estimators = int(particle[0])
+                        max_depth = int(particle[1])
+                        max_features = float(particle[2])
+
+                        model = RandomForestRegressor(
+                            n_estimators=n_estimators,
+                            max_depth=max_depth,
+                            max_features=max_features,
+                            random_state=42
+                        )
+                        model.fit(X_train, y_train)
+
+                        y_pred_train = model.predict(X_train).reshape(-1, 1)
+                        y_pred_test = model.predict(X_test).reshape(-1, 1)
+
+                        y_train_denorm = scaler_y.inverse_transform(y_train.to_numpy().reshape(-1, 1))
+                        y_test_denorm = scaler_y.inverse_transform(y_test.to_numpy().reshape(-1, 1))
+                        y_pred_train_denorm = scaler_y.inverse_transform(y_pred_train)
+                        y_pred_test_denorm = scaler_y.inverse_transform(y_pred_test)
+
+                        mape = mean_absolute_percentage_error(y_test_denorm, y_pred_test_denorm) * 100
+                        return mape, model, y_pred_train_denorm, y_pred_test_denorm, y_train_denorm, y_test_denorm
+
+                    # --- PSO Start ---
+                    particles, velocities = initialize_particles()
+                    p_best = particles.copy()
+                    p_best_scores = np.array([evaluate(p)[0] for p in particles])
+                    g_best = p_best[np.argmin(p_best_scores)]
+                    g_best_score = min(p_best_scores)
+
+                    best_model = None
+                    best_y_train = None
+                    best_y_test = None
+                    best_y_train_true = None
+                    best_y_test_true = None
+
+                    for i in range(n_iterations):
+                        for j in range(n_particles):
+                            # Update kecepatan dan posisi
+                            r1, r2 = np.random.rand(3), np.random.rand(3)
+                            velocities[j] = (
+                                inertia * velocities[j] +
+                                c1 * r1 * (p_best[j] - particles[j]) +
+                                c2 * r2 * (g_best - particles[j])
+                            )
+                            particles[j] += velocities[j]
+
+                            # Clipping agar dalam batas
+                            particles[j][0] = np.clip(particles[j][0], bounds["n_estimators"][0], bounds["n_estimators"][1])
+                            particles[j][1] = np.clip(particles[j][1], bounds["max_depth"][0], bounds["max_depth"][1])
+                            particles[j][2] = np.clip(particles[j][2], bounds["max_features"][0], bounds["max_features"][1])
+
+                            # Evaluasi ulang
+                            score, model, y_train_pred, y_test_pred, y_train_true, y_test_true = evaluate(particles[j])
+
+                            if score < p_best_scores[j]:
+                                p_best[j] = particles[j]
+                                p_best_scores[j] = score
+
+                                if score < g_best_score:
+                                    g_best = particles[j]
+                                    g_best_score = score
+                                    best_model = model
+                                    best_y_train = y_train_pred
+                                    best_y_test = y_test_pred
+                                    best_y_train_true = y_train_true
+                                    best_y_test_true = y_test_true
+
+                    # Hitung ulang MAPE untuk best
+                    mape_train = mean_absolute_percentage_error(best_y_train_true, best_y_train) * 100
+                    mape_test = mean_absolute_percentage_error(best_y_test_true, best_y_test) * 100
+
+                    best_params = {
+                        "n_estimators": int(g_best[0]),
+                        "max_depth": int(g_best[1]),
+                        "max_features": float(g_best[2])
+                    }
+
+                    return best_params, mape_train, mape_test
+
+                st.subheader("🛠️ Optimasi Manual Random Forest dengan PSO")
+
+                st.markdown("### ⚙️ Parameter PSO")
+                partikel = st.number_input("Jumlah Partikel", min_value=10, max_value=150, value=100, step=10)
+                iterasi = st.number_input("Jumlah Iterasi", min_value=10, max_value=200, value=50, step=10)
+                c1 = st.number_input("Koefisien Learning C1", min_value=0.0, max_value=3.0, value=1.49618, step=0.1)
+                c2 = st.number_input("Koefisien Learning C2", min_value=0.0, max_value=3.0, value=1.49618, step=0.1)
+                inertia = st.slider("Inertia Weight", min_value=0.1, max_value=1.0, value=0.7, step=0.05)
+
+                if st.button("🚀 Jalankan Optimasi PSO"):
+                    try:
+                        X = st.session_state["X"]
+                        y = st.session_state["y"]
+                        scaler_y = st.session_state["scaler_y"]
+
+                        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
+
+                        # Batasan parameter RF
+                        bounds = {
+                            "n_estimators": (1, 1000),
+                            "max_depth": (1, 20),
+                            "max_features": (0.4, 1.0)
+                        }
+
+                        # Fungsi optimasi PSO untuk RF
+                        best_params, mape_train, mape_test = run_pso_rf_optimization(
+                            X_train, X_test, y_train, y_test, scaler_y,
+                            bounds, partikel, iterasi, c1, c2, inertia
+                        )
+
+                        st.success("✅ Optimasi selesai!")
                         st.write(f"📊 MAPE Training: **{mape_train:.2f}%**")
                         st.write(f"📊 MAPE Testing : **{mape_test:.2f}%**")
 
-                        # Evaluasi kategori berdasarkan nilai MAPE Testing
-                        if mape_test < 10:
-                            st.success("🎯 Nilai MAPE Testing dalam kategori **SANGAT BAIK**")
-                        elif 10 <= mape_test < 20:
-                            st.success("✅ Nilai MAPE Testing dalam kategori **BAIK** ")
-                        elif 20 <= mape_test <= 50:
-                            st.warning("⚠️ Nilai MAPE Testing dalam kategori **CUKUP BAIK**")
-                        else:
-                            st.error("❌ Nilai MAPE Testing dalam kategori **BURUK** ")
+                        st.markdown("### 📌 Parameter Terbaik Hasil PSO")
+                        st.write(f"- n_estimators: {best_params['n_estimators']}")
+                        st.write(f"- max_depth: {best_params['max_depth']}")
+                        st.write(f"- max_features: {best_params['max_features']:.2f}")
 
-                    else:
-                        st.error("Parameter model atau nilai MAPE tidak ditemukan.")
-                except Exception as e:
-                    st.error(f"Terjadi kesalahan saat memuat model: {e}")
-            else:
-                st.error("File model hasil optimasi PSO tidak ditemukan.")
+                    except Exception as e:
+                        st.error(f"Terjadi kesalahan saat optimasi: {e}")
 
     elif menu == "Predictions":
         st.header("Prediksi Hasil Panen")
@@ -340,17 +592,27 @@ def main():
 
         encoder = st.session_state["one_hot_encoders"]["varietas"]
 
-        # === 2. Load Model dan Scaler ===
+        # 2. Load Model dari Google Drive
         if "model_rf_pso_best" not in st.session_state:
-            model_path = "model/rfpso_5.pkl"
-            if os.path.exists(model_path):
-                with open(model_path, "rb") as f:
-                    model_data = pickle.load(f)
+            drive_id = "1lnY0GytPzY66S2JAMTdHWztTqiwcTCkm"
+            try:
+                with st.spinner("🔽 Mengunduh model dari Google Drive..."):
+                    with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as tmp:
+                        url = f"https://drive.google.com/uc?id={drive_id}"
+                        gdown.download(url, tmp.name, quiet=False, fuzzy=True)
+                        with open(tmp.name, "rb") as f:
+                            model_data = pickle.load(f)
+    
                 st.session_state["model_rf_pso_best"] = model_data.get("model")
-                st.session_state["scaler_X"] = model_data.get("scaler_X")
-                st.session_state["scaler_y"] = model_data.get("scaler_y")
-            else:
+                st.session_state["scaler_X"] = model_data.get("scaler_X", None)
+                st.session_state["scaler_y"] = model_data.get("scaler_y", None)
+    
+                st.success("✅ Model berhasil dimuat dari Google Drive!")
+    
+            except Exception as e:
+                st.error(f"❌ Gagal memuat model: {e}")
                 st.session_state["model_rf_pso_best"] = None
+    
 
         # === 3. Input Fitur ===
         st.subheader("Masukkan Nilai Fitur:")
