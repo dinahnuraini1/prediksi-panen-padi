@@ -366,7 +366,7 @@ def main():
             with tab1_pso:
                 
                 # Jika file belum ada, unduh dari Google Drive
-                if need_redownload(model_path_pso) or os.path.getsize(model_path_pso) == 0:
+                if file_ref and need_redownload(model_path_pso, file_ref) or os.path.getsize(model_path_pso) == 0:
                     with st.spinner("🔽 Mengunduh model hasil PSO dari Google Drive..."):
                         try:
                             url = f"https://drive.google.com/uc?id={file_ref}"
