@@ -324,24 +324,24 @@ def main():
 
             # Mapping rasio ke file model hasil optimasi
             rasio_opsi_pso = {
-                "50:50": {"test_size": 0.5, "drive_id": "1jwGiXtpAKM15EdI3Oeavimmc8lbs2gNs"},
-                "60:40": {"test_size": 0.4, "drive_id": "1_8af6KcViNMKQDxD_imhFcCikGTpDkPC"}, 
-                "70:30": {"test_size": 0.3, "drive_id": "1ze6iQyYKBLOX1kkOgD6mvjFy8o-jS8Om"},
-                "80:20": {"test_size": 0.2, "drive_id": "1EAbMoYPaDzTfT4PL4IcBt_L1cRwYhhjr"},
-                "90:10": {"test_size": 0.1, "drive_id": "1U_Gi0FFSGMrPQpRGIzEmA1ZoIjVi2OvX"},
+                "50:50": {"test_size1": 0.5, "drive_id1": "1jwGiXtpAKM15EdI3Oeavimmc8lbs2gNs"},
+                "60:40": {"test_size1": 0.4, "drive_id1": "1_8af6KcViNMKQDxD_imhFcCikGTpDkPC"}, 
+                "70:30": {"test_size1": 0.3, "drive_id1": "1ze6iQyYKBLOX1kkOgD6mvjFy8o-jS8Om"},
+                "80:20": {"test_size1": 0.2, "drive_id1": "1EAbMoYPaDzTfT4PL4IcBt_L1cRwYhhjr"},
+                "90:10": {"test_size1": 0.1, "drive_id1": "1U_Gi0FFSGMrPQpRGIzEmA1ZoIjVi2OvX"},
             }
             # Dropdown untuk pilih rasio
             selected_rasio_label = st.selectbox("Pilih rasio data latih dan uji:", list(rasio_opsi_pso.keys()))
             selected_option = rasio_opsi_pso[selected_rasio_label]
-            file_ref = selected_option["drive_id"]
-            test_size = selected_option["test_size"]
+            file_ref = selected_option["drive_id1"]
+            test_size1 = selected_option["test_size1"]
 
 
             # Hitung dan tampilkan jumlah data train-test
             total_data = len(st.session_state["X"])
         
-            train_count = int((1 - test_size) * total_data)
-            test_count = int(test_size * total_data)
+            train_count = int((1 - test_size1) * total_data)
+            test_count = int(test_size1 * total_data)
 
             st.info(f"Jumlah data latih: {train_count}")
             st.info(f"Jumlah data uji: {test_count}")
