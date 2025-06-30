@@ -324,11 +324,11 @@ def main():
 
             # Mapping rasio ke file model hasil optimasi
             rasio_opsi_pso = {
-                "50:50": "1jwGiXtpAKM15EdI3Oeavimmc8lbs2gNs_",
-                "60:40": "1skd27_b0DZY_NKMGCRKNjXs0aPxs6rGn",
-                "70:30": "1YLDIkcorr8oE4ryBsCXncKil7bMNOJG_",
-                "80:20": "1sYqWvKzEWhUpQs5yOuUHMb28uF8R-iFN",
-                "90:10": "1YLDIkcorr8oE4ryBsCXncKil7bMNOJG_",
+                "50:50": {"test_size": 0.5, "drive_id": "1rHVRZ9rR8UbMgG4ur4Uq69lh7b__i0vH"},
+                "60:40": {"test_size": 0.4, "drive_id": "1QkdiFoijSEOj8tE5Rc5-hTUb8s8RM64_"},
+                "70:30": {"test_size": 0.3, "drive_id": "1ze6iQyYKBLOX1kkOgD6mvjFy8o-jS8Om"},
+                "80:20": {"test_size": 0.2, "drive_id": "1EAbMoYPaDzTfT4PL4IcBt_L1cRwYhhjr"},
+                "90:10": {"test_size": 0.1, "drive_id": "1U_Gi0FFSGMrPQpRGIzEmA1ZoIjVi2OvX"},
             }
 
             # Dropdown untuk pilih rasio
@@ -354,12 +354,23 @@ def main():
             os.makedirs(model_dir, exist_ok=True)
             model_path_pso = f"rfpso_{selected_rasio_label.replace(':', '').replace('/', '')}.pkl"
 
-            
+            def need_redownload(model_path, current_drive_id):
+                """Cek apakah file model perlu diunduh ulang berdasarkan drive_id."""
+                drive_id_path = model_path + ".id"
+                
+                if not os.path.exists(model_path):
+                    return True
+                if not os.path.exists(drive_id_path):
+                    return True
+                with open(drive_id_path, "r") as f:
+                    saved_id = f.read().strip()
+                return saved_id != current_drive_id
+
             tab1_pso, tab2_pso = st.tabs(["📂 Hasil Optimasi PSO", "📌 Parameter Model PSO"])
             with tab1_pso:
                 
                 # Jika file belum ada, unduh dari Google Drive
-                if not os.path.exists(model_path_pso) or os.path.getsize(model_path_pso) == 0:
+                if need_redownload(model_path_pso) or os.path.getsize(model_path_pso) == 0:
                     with st.spinner("🔽 Mengunduh model hasil PSO dari Google Drive..."):
                         try:
                             url = f"https://drive.google.com/uc?id={file_ref}"
