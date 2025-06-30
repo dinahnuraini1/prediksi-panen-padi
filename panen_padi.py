@@ -316,44 +316,7 @@ def main():
                         st.error(f"Terjadi kesalahan saat pelatihan: {e}")
 
     elif menu == "Random Forest + PSO Modelling":
-        st.header("4. Random Forest + PSO Modellinggggg")
-
-        st.markdown("### 🕵️ Cek Isi File Pickle dari ID Google Drive")
-        
-        drive_id = st.text_input("Masukkan ID file Google Drive (contoh: `1CGxsRkMXRNVMAa6vvH5c_Si1G5o2dPO_`)")
-        
-        if st.button("🔍 Cek Isi File"):
-            if not drive_id:
-                st.warning("Harap masukkan ID terlebih dahulu.")
-            else:
-                with st.spinner("Mengunduh dan memeriksa file..."):
-                    try:
-                        # Buat file temp
-                        with tempfile.NamedTemporaryFile(delete=False, suffix=".pkl") as tmp_file:
-                            gdown.download(f"https://drive.google.com/uc?id={drive_id}", tmp_file.name, quiet=True, fuzzy=True)
-        
-                            # Buka isi pickle
-                            with open(tmp_file.name, "rb") as f:
-                                data = pickle.load(f)
-        
-                        st.success("✅ File berhasil dimuat!")
-                        if isinstance(data, dict):
-                            st.markdown("**Isi Dictionary:**")
-                            for key, value in data.items():
-                                st.write(f"🔑 **{key}**: `{type(value).__name__}`")
-                                if isinstance(value, (int, float, str)):
-                                    st.write(f"&nbsp;&nbsp;&nbsp;&nbsp;🧾 Value: {value}")
-                                elif isinstance(value, dict):
-                                    st.json(value)
-                                else:
-                                    st.code(str(value))
-                        else:
-                            st.write("📦 Bukan dictionary, tetapi:")
-                            st.code(str(data))
-        
-                    except Exception as e:
-                        st.error(f"❌ Gagal membuka file: {e}")
-
+        st.header("4. Random Forest + PSO Modelling")
 
         if "X" not in st.session_state or "y" not in st.session_state:
             st.warning("Harap lakukan preprocessing terlebih dahulu.")
@@ -369,7 +332,7 @@ def main():
                 "60:40": "1Qynex6zbi-ljxxgHESnWushrL5YOjwQ1",
                 "70:30": "1YetscjK9lYWeuPZIT2aNXOs33tasBv2C",
                 "80:20": "1DzaGfxAdg1ohNPxss_pLn9ukTlYJJJxh",
-                "90:10": "1YLDIkcorr8oE4ryBsCXncKil7bMNOJG_",
+                "90:10": "1LZqDyupjcoY_RO3BFFE7McREHv2A2P01",
             }
 
             # Dropdown untuk pilih rasio
@@ -394,14 +357,13 @@ def main():
             model_dir = "model"
             os.makedirs(model_dir, exist_ok=True)
             model_path_pso = f"rfpso_{selected_rasio_label.replace(':', '').replace('/', '')}.pkl"
+
             
             tab1_pso, tab2_pso = st.tabs(["📂 Hasil Optimasi PSO", "📌 Parameter Model PSO"])
             with tab1_pso:
                 
                 # Jika file belum ada, unduh dari Google Drive
                 if not os.path.exists(model_path_pso) or os.path.getsize(model_path_pso) == 0:
-                    if os.path.exists(model_path_pso) and os.path.getsize(model_path_pso) == 0:
-                        os.remove(model_path_pso)
                     with st.spinner("🔽 Mengunduh model hasil PSO dari Google Drive..."):
                         try:
                             url = f"https://drive.google.com/uc?id={file_ref}"
