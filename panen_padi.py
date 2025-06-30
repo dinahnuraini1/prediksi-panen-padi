@@ -326,10 +326,10 @@ def main():
             # st.info("Silakan lakukan proses optimasi Random Forest menggunakan PSO di sini.")
             # Mapping rasio ke file model hasil optimasi
             rasio_opsi_pso = {
-                "50:50": "1Kax1ZcS0toPrQQR7KLZwCjZFBZ2MwezM",
-                "60:40": "1D9vyfEQ2Bi8wST39GkgmjNMOqeweRcQb",
-                "70:30": "1-9-Kt8Cdo6gQZe9dVEIlV567Jf9XdutW",
-                "80:20": "1x-CBDynz1IGXFKlAtlGUlt7WYx21XVbi",
+                "50:50": "1jwGiXtpAKM15EdI3Oeavimmc8lbs2gNs",
+                "60:40": "1Ean2mtGb2y9LyZkO_n--dRNpQ8BxZRZe",
+                "70:30": "1i4IDEWgaq7zdE2INdbGcAHVNxpSKsuPm",
+                "80:20": "1jwGiXtpAKM15EdI3Oeavimmc8lbs2gNs",
                 "90:10": "1YLDIkcorr8oE4ryBsCXncKil7bMNOJG_",
             }
 
@@ -378,8 +378,8 @@ def main():
 
                         params = model_data.get("params", {})
                         model_rf_pso = model_data.get("model")  # tetap string, cukup untuk ditampilkan
-                        mape_train = params.get("mape_train")
-                        mape_test = params.get("mape_test")
+                        mape_train = model_data.get("mape_train")
+                        mape_test = model_data.get("mape_test")
 
                         if model_rf_pso is not None and isinstance(params, dict) and isinstance(mape_train, (float, int)) and isinstance(mape_test, (float, int)):
                             st.subheader("📌 Parameter PSO")
