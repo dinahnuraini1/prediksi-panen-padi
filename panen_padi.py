@@ -325,7 +325,7 @@ def main():
             # Mapping rasio ke file model hasil optimasi
             rasio_opsi_pso = {
                 "50:50": {"test_size": 0.5, "drive_id": "1rHVRZ9rR8UbMgG4ur4Uq69lh7b__i0vH"},
-                "60:40": {"test_size": 0.4, "drive_id": "1QkdiFoijSEOj8tE5Rc5-hTUb8s8RM64_"},
+                "60:40": {"test_size": 0.4, "drive_id": "1_8af6KcViNMKQDxD_imhFcCikGTpDkPC"}, 
                 "70:30": {"test_size": 0.3, "drive_id": "1ze6iQyYKBLOX1kkOgD6mvjFy8o-jS8Om"},
                 "80:20": {"test_size": 0.2, "drive_id": "1EAbMoYPaDzTfT4PL4IcBt_L1cRwYhhjr"},
                 "90:10": {"test_size": 0.1, "drive_id": "1U_Gi0FFSGMrPQpRGIzEmA1ZoIjVi2OvX"},
@@ -337,13 +337,7 @@ def main():
 
             # Hitung dan tampilkan jumlah data train-test
             total_data = len(st.session_state["X"])
-            test_size = {
-                "50:50": 0.5,
-                "60:40": 0.4,
-                "70:30": 0.3,
-                "80:20": 0.2,
-                "90:10": 0.1
-            }[selected_rasio_label]
+        
             train_count = int((1 - test_size) * total_data)
             test_count = int(test_size * total_data)
 
