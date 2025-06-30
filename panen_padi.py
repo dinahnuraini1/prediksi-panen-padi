@@ -393,9 +393,9 @@ def main():
 
 
                             st.subheader("📌 Parameter Hasil Optimasi (PSO)")             
-                            st.markdown(f"**Jumlah pohon (n_estimators):** {params.get('n_estimators', '-')}")
-                            st.markdown(f"**Kedalaman maksimum pohon (max_depth):** {params.get('max_depth', '-')}")
-                            st.markdown(f"**Fitur maksimum (max_features):** {params.get('max_features', '-'):.2f}")
+                            st.markdown(f"**Jumlah pohon (n_estimators):** {params.get('n_estimators', 0)}")
+                            st.markdown(f"**Kedalaman maksimum pohon (max_depth):** {params.get('max_depth', 0)}")
+                            st.markdown(f"**Fitur maksimum (max_features):** {params.get('max_features', 0)}")
 
 
                             st.write(f"📊 MAPE Training: **{mape_train:.2f}%**")
