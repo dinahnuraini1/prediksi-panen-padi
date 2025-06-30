@@ -364,6 +364,8 @@ def main():
                 
                 # Jika file belum ada, unduh dari Google Drive
                 if not os.path.exists(model_path_pso) or os.path.getsize(model_path_pso) == 0:
+                    if os.path.exists(model_path_pso) and os.path.getsize(model_path_pso) == 0:
+                        os.remove(model_path_pso)
                     with st.spinner("🔽 Mengunduh model hasil PSO dari Google Drive..."):
                         try:
                             url = f"https://drive.google.com/uc?id={file_ref}"
