@@ -330,7 +330,7 @@ def main():
                 "60:40": "1D9vyfEQ2Bi8wST39GkgmjNMOqeweRcQb",
                 "70:30": "1QJgDuqKUbizKyNLVCxtiaVvfjQeJSy_g",
                 "80:20": "1x-CBDynz1IGXFKlAtlGUlt7WYx21XVbi",
-                "90:10": "1lnY0GytPzY66S2JAMTdHWztTqiwcTCkm",
+                "90:10": "1YLDIkcorr8oE4ryBsCXncKil7bMNOJG_",
             }
 
             # Dropdown untuk pilih rasio
@@ -581,7 +581,7 @@ def main():
 
         # 2. Load Model dari Google Drive
         if "model_rf_pso_best" not in st.session_state:
-            drive_id = "1lnY0GytPzY66S2JAMTdHWztTqiwcTCkm"
+            drive_id = "1YLDIkcorr8oE4ryBsCXncKil7bMNOJG_"
             try:
                 with st.spinner("🔽 Mengunduh model dari Google Drive..."):
                     with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as tmp:
