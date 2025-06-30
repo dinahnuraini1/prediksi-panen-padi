@@ -571,7 +571,7 @@ def main():
 
         # === 1. One-Hot Encoder untuk Varietas (default jika tidak dari training) ===
         def create_default_varietas_encoder():
-            list_varietas = ["serang bentis", "ciherang", "toyoarum", "inpari 32", "inpari 13"]
+            list_varietas = ["Serang Bentis", "Ciherang", "Toyo Arum", "Inpari 32", "Inpari 13"]
             encoder = OneHotEncoder(handle_unknown='ignore', sparse_output=False)
             encoder.fit(pd.DataFrame(list_varietas, columns=["varietas"]))
             return encoder
