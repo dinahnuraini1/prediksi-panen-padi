@@ -380,20 +380,16 @@ def main():
 
                         params = model_data.get("params", {})
                         model_rf_pso = model_data.get("model")  # tetap string, cukup untuk ditampilkan
-                        mape_train = float(model_data.get["mape_train"])
-                        mape_test = float(model_data.get["mape_test"])
+                        mape_train = model_data.get("mape_train")
+                        mape_test = model_data.get("mape_test")
 
-                        if model_rf_pso is not None and isinstance(params, dict):
+                        if model_rf_pso is not None and isinstance(params, dict) and isinstance(mape_train, (float, int)) and isinstance(mape_test, (float, int)):
                             st.subheader("📌 Parameter PSO")
                             st.markdown(f"**Partikel : 100**")
                             st.markdown(f"**Iterasi: 50**")
                             st.markdown(f"**C1: 1.49618**")
                             st.markdown(f"**C2: 1.49618**")
                             st.markdown(f"**Inertia: 0.7**")
-                            
-                            n_estimators = int(params.get('n_estimators', 0))
-                            max_depth = int(params.get('max_depth', 0))
-                            max_features = float(params.get('max_features', 0))
 
 
                             st.subheader("📌 Parameter Hasil Optimasi (PSO)")             
