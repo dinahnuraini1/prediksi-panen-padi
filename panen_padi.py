@@ -325,10 +325,10 @@ def main():
             # Mapping rasio ke file model hasil optimasi
             rasio_opsi_pso = {
                 "50:50": {"test_size1": 0.5, "drive_id1": "1jwGiXtpAKM15EdI3Oeavimmc8lbs2gNs"},
-                "60:40": {"test_size1": 0.4, "drive_id1": "1_8af6KcViNMKQDxD_imhFcCikGTpDkPC"}, 
-                "70:30": {"test_size1": 0.3, "drive_id1": "1ze6iQyYKBLOX1kkOgD6mvjFy8o-jS8Om"},
-                "80:20": {"test_size1": 0.2, "drive_id1": "1EAbMoYPaDzTfT4PL4IcBt_L1cRwYhhjr"},
-                "90:10": {"test_size1": 0.1, "drive_id1": "1U_Gi0FFSGMrPQpRGIzEmA1ZoIjVi2OvX"},
+                "60:40": {"test_size1": 0.4, "drive_id1": "1skd27_b0DZY_NKMGCRKNjXs0aPxs6rGn"}, 
+                "70:30": {"test_size1": 0.3, "drive_id1": "1i4IDEWgaq7zdE2INdbGcAHVNxpSKsuPm"},
+                "80:20": {"test_size1": 0.2, "drive_id1": "1sYqWvKzEWhUpQs5yOuUHMb28uF8R-iFN"},
+                "90:10": {"test_size1": 0.1, "drive_id1": "1YLDIkcorr8oE4ryBsCXncKil7bMNOJG_"},
             }
             # Dropdown untuk pilih rasio
             selected_rasio_label = st.selectbox("Pilih rasio data latih dan uji:", list(rasio_opsi_pso.keys()))
