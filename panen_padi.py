@@ -8,9 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_percentage_error
 from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
 import time
-import joblib
 import os
-import altair as alt
 import tempfile
 
 
