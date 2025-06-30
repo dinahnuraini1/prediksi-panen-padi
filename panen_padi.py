@@ -318,6 +318,43 @@ def main():
     elif menu == "Random Forest + PSO Modelling":
         st.header("4. Random Forest + PSO Modelling")
 
+        st.markdown("### 🕵️ Cek Isi File Pickle dari ID Google Drive")
+        
+        drive_id = st.text_input("Masukkan ID file Google Drive (contoh: `1CGxsRkMXRNVMAa6vvH5c_Si1G5o2dPO_`)")
+        
+        if st.button("🔍 Cek Isi File"):
+            if not drive_id:
+                st.warning("Harap masukkan ID terlebih dahulu.")
+            else:
+                with st.spinner("Mengunduh dan memeriksa file..."):
+                    try:
+                        # Buat file temp
+                        with tempfile.NamedTemporaryFile(delete=False, suffix=".pkl") as tmp_file:
+                            gdown.download(f"https://drive.google.com/uc?id={drive_id}", tmp_file.name, quiet=True, fuzzy=True)
+        
+                            # Buka isi pickle
+                            with open(tmp_file.name, "rb") as f:
+                                data = pickle.load(f)
+        
+                        st.success("✅ File berhasil dimuat!")
+                        if isinstance(data, dict):
+                            st.markdown("**Isi Dictionary:**")
+                            for key, value in data.items():
+                                st.write(f"🔑 **{key}**: `{type(value).__name__}`")
+                                if isinstance(value, (int, float, str)):
+                                    st.write(f"&nbsp;&nbsp;&nbsp;&nbsp;🧾 Value: {value}")
+                                elif isinstance(value, dict):
+                                    st.json(value)
+                                else:
+                                    st.code(str(value))
+                        else:
+                            st.write("📦 Bukan dictionary, tetapi:")
+                            st.code(str(data))
+        
+                    except Exception as e:
+                        st.error(f"❌ Gagal membuka file: {e}")
+
+
         if "X" not in st.session_state or "y" not in st.session_state:
             st.warning("Harap lakukan preprocessing terlebih dahulu.")
         elif "normalized" not in st.session_state or not st.session_state["normalized"]:
