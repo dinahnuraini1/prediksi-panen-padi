@@ -176,7 +176,7 @@ def main():
 
 
     elif menu == "Random Forest Modelling":
-        st.header("Random Forest Modelling")
+        st.header("3. Random Forest Modelling")
 
         if "X" not in st.session_state or "y" not in st.session_state:
             st.warning("Harap lakukan preprocessing terlebih dahulu.")
@@ -316,7 +316,7 @@ def main():
                         st.error(f"Terjadi kesalahan saat pelatihan: {e}")
 
     elif menu == "Random Forest + PSO Modelling":
-        st.header("Random Forest + PSO Modelling")
+        st.header("4. Random Forest + PSO Modelling")
 
         if "X" not in st.session_state or "y" not in st.session_state:
             st.warning("Harap lakukan preprocessing terlebih dahulu.")
@@ -553,7 +553,7 @@ def main():
                         st.error(f"Terjadi kesalahan saat optimasi: {e}")
 
     elif menu == "Predictions":
-        st.header("Prediksi Hasil Panen")
+        st.header("5. Prediksi Hasil Panen Padi")
         st.markdown("""
             <div style='text-align: center;'>
                 <h4 style='color: #555;'>
