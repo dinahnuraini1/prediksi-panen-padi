@@ -322,15 +322,17 @@ def main():
             st.warning("Harap lakukan preprocessing terlebih dahulu.")
         elif "normalized" not in st.session_state or not st.session_state["normalized"]:
             st.warning("⚠️ Harap lakukan normalisasi data terlebih dahulu sebelum melanjutkan ke pemodelan Random Forest.")
+
         else:
             # st.info("Silakan lakukan proses optimasi Random Forest menggunakan PSO di sini.")
+
             # Mapping rasio ke file model hasil optimasi
             rasio_opsi_pso = {
-                "50:50": "1jwGiXtpAKM15EdI3Oeavimmc8lbs2gNs",
-                "60:40": "1skd27_b0DZY_NKMGCRKNjXs0aPxs6rGn", 
-                "70:30": "1i4IDEWgaq7zdE2INdbGcAHVNxpSKsuPm",
-                "80:20": "1jwGiXtpAKM15EdI3Oeavimmc8lbs2gNs",
-                "90:10": "1YLDIkcorr8oE4ryBsCXncKil7bMNOJG_",
+                "50:50": "1CGxsRkMXRNVMAa6vvH5c_Si1G5o2dPO_",
+                "60:40": "1Qynex6zbi-ljxxgHESnWushrL5YOjwQ1",
+                "70:30": "1YetscjK9lYWeuPZIT2aNXOs33tasBv2C",
+                "80:20": "1DzaGfxAdg1ohNPxss_pLn9ukTlYJJJxh",
+                "90:10": "1LZqDyupjcoY_RO3BFFE7McREHv2A2P01",
             }
 
             # Dropdown untuk pilih rasio
@@ -362,9 +364,6 @@ def main():
                 
                 # Jika file belum ada, unduh dari Google Drive
                 if not os.path.exists(model_path_pso) or os.path.getsize(model_path_pso) == 0:
-                    if os.path.exists(model_path_pso):
-                        os.remove(model_path_pso)
-
                     with st.spinner("🔽 Mengunduh model hasil PSO dari Google Drive..."):
                         try:
                             url = f"https://drive.google.com/uc?id={file_ref}"
@@ -381,8 +380,8 @@ def main():
 
                         params = model_data.get("params", {})
                         model_rf_pso = model_data.get("model")  # tetap string, cukup untuk ditampilkan
-                        mape_train = params.get("mape_train")
-                        mape_test = params.get("mape_test")
+                        mape_train = model_data.get("mape_train")
+                        mape_test = model_data.get("mape_test")
 
                         if model_rf_pso is not None and isinstance(params, dict) and isinstance(mape_train, (float, int)) and isinstance(mape_test, (float, int)):
                             st.subheader("📌 Parameter PSO")
@@ -554,6 +553,7 @@ def main():
 
                     except Exception as e:
                         st.error(f"Terjadi kesalahan saat optimasi: {e}")
+
 
     elif menu == "Predictions":
         st.header("5. Prediksi Hasil Panen Padi")
