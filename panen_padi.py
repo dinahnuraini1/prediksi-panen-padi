@@ -328,7 +328,7 @@ def main():
             rasio_opsi_pso = {
                 "50:50": "1Kax1ZcS0toPrQQR7KLZwCjZFBZ2MwezM",
                 "60:40": "1D9vyfEQ2Bi8wST39GkgmjNMOqeweRcQb",
-                "70:30": "1QJgDuqKUbizKyNLVCxtiaVvfjQeJSy_g",
+                "70:30": "1BwCjxjaQ8CXgPuzehA_gy1RymBCb15cL",
                 "80:20": "1x-CBDynz1IGXFKlAtlGUlt7WYx21XVbi",
                 "90:10": "1YLDIkcorr8oE4ryBsCXncKil7bMNOJG_",
             }
