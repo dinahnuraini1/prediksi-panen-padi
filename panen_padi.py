@@ -373,6 +373,9 @@ def main():
                         with open(model_path_pso, "rb") as f:
                             model_data = pkl.load(f)
                             
+                        st.write("TIPE model_data:", type(model_data))
+                        st.write("ISI model_data:", model_data)
+
 
                         params = model_data.get("params", {})
                         model_rf_pso = model_data.get("model")  # tetap string, cukup untuk ditampilkan
