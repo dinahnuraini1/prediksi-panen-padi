@@ -413,7 +413,7 @@ def main():
                         else:
                             st.error("Parameter model atau nilai MAPE tidak ditemukaNn.")
                     except Exception as e:
-                        st.error(f"Terjadi kesalahan saat memuat model: {e}")
+                        st.error(f"Terjadi kkkesalahan saat memuat model: {e}")
                 else:
                     st.error("File model hasil optimasi PSO tidak ditemukan.")
             with tab2_pso:
