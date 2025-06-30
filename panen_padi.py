@@ -390,11 +390,16 @@ def main():
                             st.markdown(f"**C1: 1.49618**")
                             st.markdown(f"**C2: 1.49618**")
                             st.markdown(f"**Inertia: 0.7**")
+                            
+                            n_estimators = int(params.get('n_estimators', 0))
+                            max_depth = int(params.get('max_depth', 0))
+                            max_features = float(params.get('max_features', 0))
+
 
                             st.subheader("📌 Parameter Hasil Optimasi (PSO)")             
-                            st.markdown(f"**Jumlah pohon (n_estimators):** {params.get('n_estimators', 0)}")
-                            st.markdown(f"**Kedalaman maksimum pohon (max_depth):** {params.get('max_depth', 0)}")
-                            st.markdown(f"**Fitur maksimum (max_features):** {params.get('max_features', 0)}")
+                            st.markdown(f"**Jumlah pohon (n_estimators):** {n_estimators}")
+                            st.markdown(f"**Kedalaman maksimum pohon (max_depth):** {max_depth}")
+                            st.markdown(f"**Fitur maksimum (max_features):** {max_features:.2f}")
 
                             st.write(f"📊 MAPE Training: **{mape_train:.2f}%**")
                             st.write(f"📊 MAPE Testing : **{mape_test:.2f}%**")
