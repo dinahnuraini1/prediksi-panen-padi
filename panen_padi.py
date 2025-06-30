@@ -322,7 +322,8 @@ def main():
             st.warning("Harap lakukan preprocessing terlebih dahulu.")
         elif "normalized" not in st.session_state or not st.session_state["normalized"]:
             st.warning("⚠️ Harap lakukan normalisasi data terlebih dahulu sebelum melanjutkan ke pemodelan Random Forest.")
-
+        else:
+            # st.info("Silakan lakukan proses optimasi Random Forest menggunakan PSO di sini.")
             # Mapping rasio ke file model hasil optimasi
             rasio_opsi_pso = {
                 "50:50": "1Kax1ZcS0toPrQQR7KLZwCjZFBZ2MwezM",
