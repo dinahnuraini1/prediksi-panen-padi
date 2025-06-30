@@ -328,11 +328,11 @@ def main():
 
             # Mapping rasio ke file model hasil optimasi
             rasio_opsi_pso = {
-                "50:50": "1CGxsRkMXRNVMAa6vvH5c_Si1G5o2dPO_",
-                "60:40": "1Qynex6zbi-ljxxgHESnWushrL5YOjwQ1",
-                "70:30": "1YetscjK9lYWeuPZIT2aNXOs33tasBv2C",
-                "80:20": "1DzaGfxAdg1ohNPxss_pLn9ukTlYJJJxh",
-                "90:10": "1LZqDyupjcoY_RO3BFFE7McREHv2A2P01",
+                "50:50": "1jwGiXtpAKM15EdI3Oeavimmc8lbs2gNs_",
+                "60:40": "1_8af6KcViNMKQDxD_imhFcCikGTpDkPC",
+                "70:30": "1i4IDEWgaq7zdE2INdbGcAHVNxpSKsuPm",
+                "80:20": "1sYqWvKzEWhUpQs5yOuUHMb28uF8R-iFN",
+                "90:10": "1YLDIkcorr8oE4ryBsCXncKil7bMNOJG_",
             }
 
             # Dropdown untuk pilih rasio
