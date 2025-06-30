@@ -2,7 +2,7 @@ import gdown
 import streamlit as st # type: ignore
 import pandas as pd
 import numpy as np
-import pickle
+import pickle as pkl 
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_percentage_error
@@ -17,10 +17,6 @@ import tempfile
 # STREAMLIT
 def main():
     # Menampilkan gambar menggunakan st.image dengan pengaturan width
-   
-    
-    
-       
     # Sidebar Menu
     st.sidebar.image("panen.png", width=200) 
    # Menambahkan judul besar di sidebar
@@ -234,7 +230,7 @@ def main():
                 if os.path.exists(model_path):
                     try:
                         with open(model_path, "rb") as f:
-                            model_data = pickle.load(f)
+                            model_data = pkl.load(f)
                         model_rf = model_data.get("model")
                         params = model_data.get("params", {})
                         mape_train = params.get("mape_train")
@@ -375,7 +371,7 @@ def main():
                 if os.path.exists(model_path_pso):
                     try:
                         with open(model_path_pso, "rb") as f:
-                            model_data = pickle.load(f)
+                            model_data = pkl.load(f)
                             
 
                         params = model_data.get("params", {})
@@ -593,7 +589,7 @@ def main():
                         url = f"https://drive.google.com/uc?id={drive_id}"
                         gdown.download(url, tmp.name, quiet=False, fuzzy=True)
                         with open(tmp.name, "rb") as f:
-                            model_data = pickle.load(f)
+                            model_data = pkl.load(f)
     
                 st.session_state["model_rf_pso_best"] = model_data.get("model")
                 st.session_state["scaler_X"] = model_data.get("scaler_X", None)
