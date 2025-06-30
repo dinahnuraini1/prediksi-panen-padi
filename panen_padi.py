@@ -357,21 +357,6 @@ def main():
             model_dir = "model"
             os.makedirs(model_dir, exist_ok=True)
             model_path_pso = f"rfpso_{selected_rasio_label.replace(':', '').replace('/', '')}.pkl"
-            with st.expander("🧹 Bersihkan semua file model PSO (.pkl)"):
-                if st.button("Hapus semua file model"):
-                    deleted = []
-                    for rasio in rasio_opsi_pso.keys():
-                        file_name = f"rfpso_{rasio.replace(':', '').replace('/', '')}.pkl"
-                        file_path = os.path.join("model", file_name)
-                        if os.path.exists(file_path):
-                            os.remove(file_path)
-                            deleted.append(file_name)
-                    if deleted:
-                        st.success(f"Berhasil menghapus {len(deleted)} file: {', '.join(deleted)}")
-                    else:
-                        st.info("Tidak ada file yang perlu dihapus.")
-
-
             
             tab1_pso, tab2_pso = st.tabs(["📂 Hasil Optimasi PSO", "📌 Parameter Model PSO"])
             with tab1_pso:
