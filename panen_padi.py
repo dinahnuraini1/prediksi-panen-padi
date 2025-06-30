@@ -104,27 +104,16 @@ def main():
             df = st.session_state["data"].copy()
             
             numeric_cols = df.select_dtypes(include=['int64', 'float64']).columns.tolist()
-            # === Ringkasan Awal (Sebelum Imputasi) ===
-            st.markdown("###### 📊 Ringkasan Data Sebelum Preprocessing")
+            # === Ringkasan Awal ===
+            st.markdown("###### 📊 Ringkasan  Cek Data Kosong dan Data Bernilai 0")
             null_count = df.isnull().sum()
             zero_count = (df[numeric_cols] == 0).sum()
 
             summary_before = pd.DataFrame({
                 "Data Kosong": null_count,
-                "Data bernilai 0": zero_count}).fillna(0).astype(int)
-            st.dataframe(summary_before)
-
-            # === Ringkasan Setelah Penanganan Outlier ===
-            st.markdown("###### 📊 Ringkasan Data Setelah Penanganan Outlier (dengan imputasi Mean)")
-            null_after = df_outlier_handled.isnull().sum()
-            zero_after = (df_outlier_handled[numeric_cols] == 0).sum()
-
-            summary_after = pd.DataFrame({
-                "Data Kosong": null_after,
-                "Data bernilai 0": zero_after
+                "Data bernilai 0": zero_count
             }).fillna(0).astype(int)
-
-            st.dataframe(summary_after)
+            st.dataframe(summary_before)
             
             # ===== One-Hot Encoding untuk 'varietas' =====
             st.subheader("One-Hot Encoding untuk Kolom varietas")
