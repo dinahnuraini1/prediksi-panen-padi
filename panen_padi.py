@@ -330,10 +330,12 @@ def main():
                 "80:20": {"test_size": 0.2, "drive_id": "1EAbMoYPaDzTfT4PL4IcBt_L1cRwYhhjr"},
                 "90:10": {"test_size": 0.1, "drive_id": "1U_Gi0FFSGMrPQpRGIzEmA1ZoIjVi2OvX"},
             }
-
             # Dropdown untuk pilih rasio
             selected_rasio_label = st.selectbox("Pilih rasio data latih dan uji:", list(rasio_opsi_pso.keys()))
-            file_ref = rasio_opsi_pso[selected_rasio_label]
+            selected_option = rasio_opsi_pso[selected_rasio_label]
+            file_ref = selected_option["drive_id"]
+            test_size = selected_option["test_size"]
+
 
             # Hitung dan tampilkan jumlah data train-test
             total_data = len(st.session_state["X"])
