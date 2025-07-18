@@ -569,21 +569,7 @@ def main():
         """, unsafe_allow_html=True)
 
 
-        # === 1. One-Hot Encoder untuk Varietas (default jika tidak dari training) ===
-        def create_default_varietas_encoder():
-            list_varietas = ["Serang Bentis", "Ciherang", "Toyo Arum", "Inpari 32", "Inpari 13"]
-            encoder = OneHotEncoder(handle_unknown='ignore', sparse_output=False)
-            encoder.fit(pd.DataFrame(list_varietas, columns=["varietas"]))
-            return encoder
-
-        if "one_hot_encoders" not in st.session_state:
-            st.session_state["one_hot_encoders"] = {}
-
-        if "varietas" not in st.session_state["one_hot_encoders"]:
-            st.session_state["one_hot_encoders"]["varietas"] = create_default_varietas_encoder()
-
-        encoder = st.session_state["one_hot_encoders"]["varietas"]
-
+       
         # 2. Load Model dari Google Drive
         if "model_rf_pso_best" not in st.session_state:
             drive_id = "1YLDIkcorr8oE4ryBsCXncKil7bMNOJG_"
@@ -603,8 +589,24 @@ def main():
     
             except Exception as e:
                 st.error(f"❌ Gagal memuat model: {e}")
-                st.session_state["model_rf_pso_best"] = None
-    
+                st.stop()
+        model = st.session_state["model_rf_pso_best"]
+        scaler_X = st.session_state["scaler_X"]
+        scaler_y = st.session_state["scaler_y"]
+         # === 1. One-Hot Encoder untuk Varietas (default jika tidak dari training) ===
+        def create_default_varietas_encoder():
+            list_varietas = ["Serang Bentis", "Ciherang", "Toyo Arum", "Inpari 32", "Inpari 13"]
+            encoder = OneHotEncoder(handle_unknown='ignore', sparse_output=False)
+            encoder.fit(pd.DataFrame(list_varietas, columns=["varietas"]))
+            return encoder
+
+        if "one_hot_encoders" not in st.session_state:
+            st.session_state["one_hot_encoders"] = {}
+
+        if "varietas" not in st.session_state["one_hot_encoders"]:
+            st.session_state["one_hot_encoders"]["varietas"] = create_default_varietas_encoder()
+
+        encoder = st.session_state["one_hot_encoders"]["varietas"]
 
         # === 3. Input Fitur ===
         st.subheader("Masukkan Nilai Fitur:")
@@ -650,31 +652,18 @@ def main():
                 for col in final_features:
                     if col not in input_df.columns:
                         input_df[col] = 0
-                input_df = input_df[final_features]
+                input_data = input_df[final_features]
 
                 # === 7. Normalisasi ===
-                scaler_X = st.session_state.get("scaler_X")
-                if scaler_X is not None:
-                    input_scaled = scaler_X.transform(input_df)
-                else:
-                    input_scaled = input_df.values
+                input_scaled = scaler_X.transform(input_data)
 
                 # === 8. Prediksi ===
-                model = st.session_state.get("model_rf_pso_best")
-                if model is None:
-                    st.warning("Model belum tersedia.")
-                    st.stop()
-
-                hasil_normalized = model.predict(input_scaled).reshape(-1, 1)
+               hasil_scaled = model.predict(input_scaled).reshape(-1, 1)
 
                 # === 9. Inverse transform hasil prediksi ===
-                scaler_y = st.session_state.get("scaler_y")
-                if scaler_y is not None:
-                    hasil_panen = scaler_y.inverse_transform(hasil_normalized)
-                else:
-                    hasil_panen = hasil_normalized
+               hasil_panen_asli = scaler_y.inverse_transform(hasil_scaled)
 
-                st.success(f"🌾 Prediksi Hasil Panen Padi Adalah: **{hasil_panen[0][0]:,.2f}** Ton")
+                st.success(f"🌾 Prediksi Hasil Panen Padi Adalah: **{hasil_panen_asli[0][0]:,.2f}** Ton")
 
             except Exception as e:
                 st.error(f"❌ Terjadi kesalahan saat prediksi: {e}")
