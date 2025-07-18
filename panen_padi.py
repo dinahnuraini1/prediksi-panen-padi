@@ -576,8 +576,10 @@ def main():
             if not os.path.exists(output_path):
                 try:
                     gdown.download(url, tmp.name, quiet=False, fuzzy=True)
+                    print("✅ Berhasil mengunduh model dari Google Drive.")
                 except Exception as e:
-                st.error(f"❌ Gagal memuat model: {e}")
+                print("❌ Gagal mengunduh model dari Google Drive.")
+                st.error(f"❌ Gagal mengunduh model dari Google Drive: {e}")
                 st.stop()
             if os.path.exists(output_path):
                 try:
