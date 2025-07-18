@@ -569,7 +569,7 @@ def main():
         """, unsafe_allow_html=True)
       
         # 2. Load Model dari Google Drive
-        file_id = "11VbY512tjsSicWVCAuGMBHkSg8ypkup9c"  # Ganti dengan ID file Google Drive Anda
+        file_id = "1VbY512tjsSicWVCAuGMBHkSg8ypkup9c"  # Ganti dengan ID file Google Drive Anda
         output_path = "model/rfpso_best4.pkl"
         gdrive_url = f"https://drive.google.com/uc?id={file_id}"
         if "model_rf_pso_best" not in st.session_state:
