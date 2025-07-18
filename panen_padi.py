@@ -567,32 +567,38 @@ def main():
                 </h4>
             </div> 
         """, unsafe_allow_html=True)
-
-
-       
+      
         # 2. Load Model dari Google Drive
+        file_id = "11VbY512tjsSicWVCAuGMBHkSg8ypkup9c"  # Ganti dengan ID file Google Drive Anda
+        output_path = "model/rfpso_best4.pkl"
+        gdrive_url = f"https://drive.google.com/uc?id={file_id}"
         if "model_rf_pso_best" not in st.session_state:
-            drive_id = "1YLDIkcorr8oE4ryBsCXncKil7bMNOJG_"
-            try:
-                with st.spinner("🔽 Mengunduh model dari Google Drive..."):
-                    with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as tmp:
-                        url = f"https://drive.google.com/uc?id={drive_id}"
-                        gdown.download(url, tmp.name, quiet=False, fuzzy=True)
-                        with open(tmp.name, "rb") as f:
-                            model_data = pkl.load(f)
-    
-                st.session_state["model_rf_pso_best"] = model_data.get("model")
-                st.session_state["scaler_X"] = model_data.get("scaler_X", None)
-                st.session_state["scaler_y"] = model_data.get("scaler_y", None)
-    
-                st.success("✅ Model berhasil dimuat dari Google Drive!")
-    
-            except Exception as e:
+            if not os.path.exists(output_path):
+                try:
+                    gdown.download(url, tmp.name, quiet=False, fuzzy=True)
+                except Exception as e:
                 st.error(f"❌ Gagal memuat model: {e}")
                 st.stop()
+            if os.path.exists(output_path):
+                try:
+                    with open(output_path, "rb") as f:
+                        model_data = pickle.load(f)
+                    st.session_state["model_rf_pso_best"] = model_data["model"]
+                    st.session_state["scaler_X"] = model_data["scaler_X"]
+                    st.session_state["scaler_y"] = model_data["scaler_y"]
+                    st.success("✅ Model dan scaler berhasil dimuat dari Google Drive.")
+                except Exception as e:
+                    st.error(f"❌ Gagal memuat model: {e}")
+                    st.stop()
+            else:
+                st.warning(f"⚠️ File model '{output_path}' tidak ditemukan.")
+                st.stop()
+        
+        # Ambil objek model dan scaler dari session_state
         model = st.session_state["model_rf_pso_best"]
         scaler_X = st.session_state["scaler_X"]
         scaler_y = st.session_state["scaler_y"]
+        
          # === 1. One-Hot Encoder untuk Varietas (default jika tidak dari training) ===
         def create_default_varietas_encoder():
             list_varietas = ["Serang Bentis", "Ciherang", "Toyo Arum", "Inpari 32", "Inpari 13"]
