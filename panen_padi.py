@@ -605,14 +605,7 @@ def main():
             encoder = OneHotEncoder(handle_unknown='ignore', sparse_output=False)
             encoder.fit(pd.DataFrame(list_varietas, columns=["varietas"]))
             return encoder
-
-        if "one_hot_encoders" not in st.session_state:
-            st.session_state["one_hot_encoders"] = {}
-
-        if "varietas" not in st.session_state["one_hot_encoders"]:
-            st.session_state["one_hot_encoders"]["varietas"] = create_default_varietas_encoder()
-
-        encoder = st.session_state["one_hot_encoders"]["varietas"]
+        encoder = create_default_varietas_encoder()
 
         # === 3. Input Fitur ===
         st.subheader("Masukkan Nilai Fitur:")
@@ -639,15 +632,10 @@ def main():
                     "jumlah_bibit": jumlah_bibit,
                     "varietas": varietas_padi
                 }
-                input_df = pd.DataFrame([input_dict])
-
-                # === 5. One-hot encoding varietas ===
-                encoded = encoder.transform(input_df[["varietas"]])
-                encoded_df = pd.DataFrame(
-                    encoded, columns=encoder.get_feature_names_out(["varietas"])
-                )
-                input_df.drop(columns=["varietas"], inplace=True)
-                input_df = pd.concat([input_df, encoded_df], axis=1)
+                 encoded = encoder.transform(input_data[["varietas"]])
+                encoded_df = pd.DataFrame(encoded, columns=encoder.get_feature_names_out(["varietas"]))
+                input_data.drop(columns=["varietas"], inplace=True)
+                input_data = pd.concat([input_data, encoded_df], axis=1)
 
                 # === 6. Pastikan semua fitur lengkap dan urut ===
                 final_features = [
@@ -656,9 +644,9 @@ def main():
                     "varietas_Serang Bentis", "varietas_Toyo Arum"
                 ]
                 for col in final_features:
-                    if col not in input_df.columns:
-                        input_df[col] = 0
-                input_data = input_df[final_features]
+                    if col not in input_data.columns:
+                        input_data[col] = 0
+                input_data = input_data[final_features]
 
                 # === 7. Normalisasi ===
                 input_scaled = scaler_X.transform(input_data)
