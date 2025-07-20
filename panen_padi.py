@@ -585,7 +585,7 @@ def main():
             if os.path.exists(output_path):
                 try:
                     with open(output_path, "rb") as f:
-                        model_data = pickle.load(f)
+                        model_data = pkl.load(f)
                     st.session_state["model_rf_pso_best"] = model_data["model"]
                     st.session_state["scaler_X"] = model_data["scaler_X"]
                     st.session_state["scaler_y"] = model_data["scaler_y"]
