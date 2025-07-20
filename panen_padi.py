@@ -634,7 +634,7 @@ def main():
                     "jumlah_bibit": jumlah_bibit,
                     "varietas": varietas_padi
                 }
-                 encoded = encoder.transform(input_data[["varietas"]])
+                encoded = encoder.transform(input_data[["varietas"]])
                 encoded_df = pd.DataFrame(encoded, columns=encoder.get_feature_names_out(["varietas"]))
                 input_data.drop(columns=["varietas"], inplace=True)
                 input_data = pd.concat([input_data, encoded_df], axis=1)
