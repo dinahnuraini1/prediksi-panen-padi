@@ -654,10 +654,10 @@ def main():
                 input_scaled = scaler_X.transform(input_data)
 
                 # === 8. Prediksi ===
-               hasil_scaled = model.predict(input_scaled).reshape(-1, 1)
+                hasil_scaled = model.predict(input_scaled).reshape(-1, 1)
 
                 # === 9. Inverse transform hasil prediksi ===
-               hasil_panen_asli = scaler_y.inverse_transform(hasil_scaled)
+                hasil_panen_asli = scaler_y.inverse_transform(hasil_scaled)
 
                 st.success(f"🌾 Prediksi Hasil Panen Padi Adalah: **{hasil_panen_asli[0][0]:,.2f}** Ton")
 
