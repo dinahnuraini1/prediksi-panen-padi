@@ -575,7 +575,7 @@ def main():
         if "model_rf_pso_best" not in st.session_state:
             if not os.path.exists(output_path):
                 try:
-                    gdown.download(gdrive_url, tmp.name, quiet=False, fuzzy=True)
+                    gdown.download(gdrive_url, output_path, quiet=False, fuzzy=True)
                     print("✅ Berhasil mengunduh model dari Google Drive.")
                 except Exception as e:
                     print("❌ Gagal mengunduh model dari Google Drive.")
