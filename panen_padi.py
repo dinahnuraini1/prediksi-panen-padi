@@ -635,6 +635,7 @@ def main():
                     "jumlah_bibit": jumlah_bibit,
                     "varietas": varietas_padi
                 }
+                input_data = pd.DataFrame([input_dict])
                 encoded = encoder.transform(input_data[["varietas"]])
                 encoded_df = pd.DataFrame(encoded, columns=encoder.get_feature_names_out(["varietas"]))
                 input_data.drop(columns=["varietas"], inplace=True)
